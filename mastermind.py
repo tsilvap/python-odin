@@ -81,6 +81,10 @@ class Game(object):
         else:  # Start the game
             pass  # TODO: Implement this.
 
+    def start(self):
+        """Start the game and execute its lifecycle."""
+        self.draw_initial_screen()
+
 
 class Board(object):
     """Mastermind board information."""
@@ -132,7 +136,7 @@ def main(stdscr):
     """Play the Mastermind game on curses screen stdscr."""
     game = Game(stdscr)
     board = Board()
-    game.draw_initial_screen()
+    game.start()
 
 
 if __name__ == '__main__':
