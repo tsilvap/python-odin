@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Command-line Mastermind game, with AI."""
 import curses
+import random
 
 
 # Color constants.
@@ -18,10 +19,25 @@ CYAN = 7
 class Game(object):
     """Game information."""
 
-    def __init__(self, scr):
+    def __init__(self, scr, board):
         """Initialize the Game object on curses screen scr."""
         self.scr = scr
+        self.board = board
         self.players = 1  # 1 -> single player, 2 -> two players
+
+    def draw_text_centralized(self, text, height, width):
+        """Draw text in a centralized window (height, width)."""
+        scr = self.scr
+
+        max_y, max_x = scr.getmaxyx()
+        text_window = curses.newwin(
+            height,
+            width,
+            int((max_y - height)/2),
+            int((max_x - width - 1)/2),  # ignore \n in calculation
+        )
+        text_window.addstr(text)
+        text_window.refresh()
 
     def draw_initial_screen(self, players=None):
         """Draw the initial screen."""
@@ -53,24 +69,43 @@ class Game(object):
             "    Press s to select and start the game.     \n"
         )
         initial_text = logo + modes + instructions
-        text_height = 12
-        text_width = 47
+        height = 12  # text height
+        width = 47  # text width (including \n)
 
-        max_y, max_x = scr.getmaxyx()
-        text_window = curses.newwin(
-            text_height,
-            text_width,
-            int((max_y - text_height)/2),
-            int((max_x - text_width - 1)/2),  # ignore \n in calculation
-        )
-        text_window.addstr(initial_text)
-        text_window.refresh()
+        self.draw_text_centralized(initial_text, height, width)
 
         curses.curs_set(0)
-        self.initial_screen_keyloop(scr)
+        self.initial_screen_keyloop()
 
-    def initial_screen_keyloop(self, scr):
+    def draw_playing_screen(self, players=1):
+        """Draw the playing screen."""
+        scr = self.scr
+
+        if players == 1:
+            scr.addstr(0, 0, "mastermind.py", curses.A_REVERSE)
+
+            select_colors = (
+                "   Use a s d f g h to select a color.  \n"
+                "                                       \n"
+                "          O     O     O     O          \n"
+            )
+            
+            height = 18
+            width = 40
+
+            self.draw_text_centralized(select_colors, height, width)
+
+            curses.curs_set(0)
+            self.playing_screen_keyloop()
+
+        else:
+            pass  # TODO: Implement 2-player mode
+
+
+    def initial_screen_keyloop(self):
         """The initial screen keyloop."""
+        scr = self.scr
+
         key = scr.getch()
         while key not in {curses.KEY_DOWN, curses.KEY_UP, ord('s'), ord('S')}:
             key = scr.getch()
@@ -81,9 +116,16 @@ class Game(object):
         else:  # Start the game
             pass  # TODO: Implement this.
 
+    def playing_screen_keyloop(self):
+        """The playing screen keyloop"""
+        scr = self.scr
+
+        key = scr.getch()
+
     def start(self):
         """Start the game and execute its lifecycle."""
         self.draw_initial_screen()
+        self.draw_playing_screen()
 
 
 class Board(object):
@@ -95,7 +137,19 @@ class Board(object):
         :param code: List of four colors, the code to be cracked.
         :param tries: Maximum number of tries to crack the code.
         """
-        self.code = code
+        if code is None:
+            # Generate a random code
+            colors = [RED, GREEN, YELLOW, BLUE, VIOLET, CYAN]
+            code = []
+            for i in range(0, 4):
+                color_index = random.randrange(0, len(colors))
+                code.append(colors[color_index])
+                colors.pop(color_index)
+            self.code = code
+        else:
+            # Use code provided as a parameter
+            self.code = code
+
         self.tries = tries
 
     def guess(self, guess):
@@ -134,8 +188,8 @@ class Board(object):
 
 def main(stdscr):
     """Play the Mastermind game on curses screen stdscr."""
-    game = Game(stdscr)
     board = Board()
+    game = Game(stdscr, board)
     game.start()
 
 
