@@ -21,24 +21,39 @@ class Game(object):
     def __init__(self, scr):
         """Initialize the Game object on curses screen scr."""
         self.scr = scr
+        self.players = 1  # 1 -> single player, 2 -> two players
 
-    def draw_initial_screen(self):
+    def draw_initial_screen(self, players=None):
         """Draw the initial screen."""
+        if players is not None:
+            self.players = players
+
         scr = self.scr
         scr.addstr(0, 0, "mastermind.py", curses.A_REVERSE)
         scr.refresh()
 
-        initial_text = (
+        logo = (
             " __  __         _                 _         _ \n"
             "|  \/  |__ _ __| |_ ___ _ _ _ __ (_)_ _  __| |\n"
             "| |\/| / _` (_-<  _/ -_) '_| '  \| | ' \/ _` |\n"
             "|_|  |_\__,_/__/\__\___|_| |_|_|_|_|_||_\__,_|\n"
             "                                              \n"
             "                                              \n"
+        )
+        modes = (
             "              > 1P vs computer                \n"
             "                1P vs 2P                      \n"
+            if self.players == 1 else
+            "                1P vs computer                \n"
+            "              > 1P vs 2P                      \n"
         )
-        text_height = 9
+        instructions = (
+            "                                              \n"
+            "                                              \n"
+            "    Press s to select and start the game.     \n"
+        )
+        initial_text = logo + modes + instructions
+        text_height = 12
         text_width = 47
 
         max_y, max_x = scr.getmaxyx()
@@ -52,8 +67,19 @@ class Game(object):
         text_window.refresh()
 
         curses.curs_set(0)
-        scr.getkey()
+        self.initial_screen_keyloop(scr)
 
+    def initial_screen_keyloop(self, scr):
+        """The initial screen keyloop."""
+        key = scr.getch()
+        while key not in {curses.KEY_DOWN, curses.KEY_UP, ord('s'), ord('S')}:
+            key = scr.getch()
+
+        if key in {curses.KEY_DOWN, curses.KEY_UP}:
+            self.draw_initial_screen(2 if self.players == 1 else 1)
+
+        else:  # Start the game
+            pass  # TODO: Implement this.
 
 
 class Board(object):
