@@ -7,13 +7,13 @@ import random
 
 # Color constants.
 BLACK = 0
-WHITE = 1
-RED = 2
-GREEN = 3
-YELLOW = 4
-BLUE = 5
-VIOLET = 6
-CYAN = 7
+RED = 1
+GREEN = 2
+YELLOW = 3
+BLUE = 4
+MAGENTA = 5
+CYAN = 6
+WHITE = 7
 
 
 class Game(object):
@@ -24,6 +24,25 @@ class Game(object):
         self.scr = scr
         self.board = board
         self.players = 1  # 1 -> single player, 2 -> two players
+
+        # Initialize curses color pairs
+        curses.init_pair(RED, RED, 0)
+        curses.init_pair(GREEN, GREEN, 0)
+        curses.init_pair(YELLOW, YELLOW, 0)
+        curses.init_pair(BLUE, BLUE, 0)
+        curses.init_pair(MAGENTA, MAGENTA, 0)
+        curses.init_pair(CYAN, CYAN, 0)
+
+    def draw_current_guess(self):
+        """Draw the current guess code."""
+        pass
+    
+    def draw_guess_list(self):
+        """Draw the list of guesses, previous and to be made."""
+        pass
+    
+    def draw_help_commands(self):
+        """Draw the help command strings on the playing screen."""
 
     def draw_text_centralized(self, text, height, width):
         """Draw text in a centralized window (height, width)."""
@@ -49,10 +68,10 @@ class Game(object):
         scr.refresh()
 
         logo = (
-            " __  __         _                 _         _ \n"
-            "|  \/  |__ _ __| |_ ___ _ _ _ __ (_)_ _  __| |\n"
-            "| |\/| / _` (_-<  _/ -_) '_| '  \| | ' \/ _` |\n"
-            "|_|  |_\__,_/__/\__\___|_| |_|_|_|_|_||_\__,_|\n"
+            r" __  __         _                 _         _ ""\n"
+            r"|  \/  |__ _ __| |_ ___ _ _ _ __ (_)_ _  __| |""\n"
+            r"| |\/| / _` (_-<  _/ -_) '_| '  \| | ' \/ _` |""\n"
+            r"|_|  |_\__,_/__/\__\___|_| |_|_|_|_|_||_\__,_|""\n"
             "                                              \n"
             "                                              \n"
         )
@@ -81,26 +100,40 @@ class Game(object):
         """Draw the playing screen."""
         scr = self.scr
 
-        if players == 1:
-            scr.addstr(0, 0, "mastermind.py", curses.A_REVERSE)
+        scr.clear()
+        scr.addstr(0, 0, "mastermind.py", curses.A_REVERSE)
+        scr.refresh()
 
-            select_colors = (
-                "   Use a s d f g h to select a color.  \n"
-                "                                       \n"
-                "          O     O     O     O          \n"
-            )
-            
-            height = 18
-            width = 40
+        height, width = 18, 40
+        max_y, max_x = scr.getmaxyx()
+        text_window = curses.newwin(
+            height,
+            width,
+            int((max_y - height)/2),
+            int((max_x - width - 1)/2),  # ignore \n in calculation
+        )
 
-            self.draw_text_centralized(select_colors, height, width)
+        self.draw_select_color(text_window)
+        self.draw_current_guess()
+        self.draw_guess_list()
+        self.draw_help_commands()
 
-            curses.curs_set(0)
-            self.playing_screen_keyloop()
+        text_window.refresh()
 
-        else:
-            pass  # TODO: Implement 2-player mode
-
+        curses.curs_set(0)
+        self.playing_screen_keyloop()
+    
+    def draw_select_color(self, window):
+        """Draw the "select color" text on window."""
+        window.addstr("   Use ")
+        window.addstr("a ", curses.color_pair(RED))
+        window.addstr("s ", curses.color_pair(GREEN))
+        window.addstr("d ", curses.color_pair(YELLOW))
+        window.addstr("f ", curses.color_pair(BLUE))
+        window.addstr("g ", curses.color_pair(MAGENTA))
+        window.addstr("h ", curses.color_pair(CYAN))
+        window.addstr("to select a color.  \n")
+        window.addstr("\n")
 
     def initial_screen_keyloop(self):
         """The initial screen keyloop."""
@@ -139,7 +172,7 @@ class Board(object):
         """
         if code is None:
             # Generate a random code
-            colors = [RED, GREEN, YELLOW, BLUE, VIOLET, CYAN]
+            colors = [RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN]
             code = []
             for i in range(0, 4):
                 color_index = random.randrange(0, len(colors))

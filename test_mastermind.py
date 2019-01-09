@@ -1,5 +1,5 @@
 from mastermind import (
-    BLACK, WHITE, RED, GREEN, YELLOW, BLUE, VIOLET, CYAN,
+    BLACK, WHITE, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN,
     Board
 )
 
@@ -18,19 +18,19 @@ def test_guess():
     assert board.guess([RED, CYAN, GREEN, YELLOW]) == [BLACK, BLACK, WHITE, WHITE]
 
     # two correct, one swapped
-    assert board.guess([RED, CYAN, VIOLET, YELLOW]) == [BLACK, BLACK, WHITE]
+    assert board.guess([RED, CYAN, MAGENTA, YELLOW]) == [BLACK, BLACK, WHITE]
 
     # two correct
-    assert board.guess([RED, GREEN, VIOLET, BLUE]) == [BLACK, BLACK]
+    assert board.guess([RED, GREEN, MAGENTA, BLUE]) == [BLACK, BLACK]
 
     # one correct, three swapped
     assert board.guess([GREEN, YELLOW, CYAN, RED]) == [BLACK, WHITE, WHITE, WHITE]
 
     # one correct, two swapped
-    assert board.guess([GREEN, YELLOW, CYAN, VIOLET]) == [BLACK, WHITE, WHITE]
+    assert board.guess([GREEN, YELLOW, CYAN, MAGENTA]) == [BLACK, WHITE, WHITE]
 
     # one correct, one swapped
-    assert board.guess([GREEN, BLUE, CYAN, VIOLET]) == [BLACK, WHITE]
+    assert board.guess([GREEN, BLUE, CYAN, MAGENTA]) == [BLACK, WHITE]
 
     # four swapped
     assert board.guess([YELLOW, RED, GREEN, CYAN]) == [WHITE, WHITE, WHITE, WHITE]
@@ -39,4 +39,4 @@ def test_guess():
     assert board.guess([BLUE, RED, GREEN, CYAN]) == [WHITE, WHITE, WHITE]
 
     # two swapped
-    assert board.guess([BLUE, RED, GREEN, VIOLET]) == [WHITE, WHITE]
+    assert board.guess([BLUE, RED, GREEN, MAGENTA]) == [WHITE, WHITE]
