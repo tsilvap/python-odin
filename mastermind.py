@@ -50,13 +50,24 @@ class Game(object):
             window.addstr("     ")
         window.addstr("\n")
     
-    def draw_guess_list(self):
+    def draw_guess_list(self, window):
         """Draw the list of guesses, previous and to be made."""
-        pass
+        board = self.board
+        guess_list = board.guess_history
+
+        for i in range(0, len(guess_list)):
+            pass  # TODO: Implement guess list
+        for i in range(len(guess_list), 10):
+            window.addstr("\n")
+
+        window.addstr("\n\n")
     
-    def draw_help_commands(self):
+    def draw_help_commands(self, window):
         """Draw the help command strings on the playing screen."""
-        pass
+        window.addstr("     Press ? to display the rules.\n")
+        window.addstr("     Press n to start a new game.\n")
+        window.addstr("     Press r to reset the guess.\n")
+        window.addstr("     Press q to quit.")
 
     def draw_text_centralized(self, text, height, width):
         """Draw text in a centralized window (height, width)."""
@@ -130,8 +141,8 @@ class Game(object):
         text_window.clear()
         self.draw_select_color(text_window)
         self.draw_current_guess(text_window)
-        self.draw_guess_list()
-        self.draw_help_commands()
+        self.draw_guess_list(text_window)
+        self.draw_help_commands(text_window)
 
         text_window.refresh()
 
@@ -195,10 +206,10 @@ class Game(object):
                 pass # TODO: Implement new game screen
             elif key == 'r':
                 pass # TODO: Implement reset guess procedure
-            elif key == 'q':
+            elif key == 'q':  # Quit
                 break
 
-            break  # Exit the loop
+            break  # Exit from extra loop
 
     def start(self):
         """Start the game and execute its lifecycle."""
@@ -229,7 +240,8 @@ class Board(object):
             self.code = code
 
         self.tries = tries
-        self.current_guess = []
+        self.current_guess = []  # [colors...]
+        self.guess_history = []  # [(guess, feedback)...]
 
     def add_color(self, color):
         """Append a color to the current guess."""
@@ -277,6 +289,8 @@ class Board(object):
                 if remaining_guess[i] == self.code[j]:
                     feedback.append(WHITE)
                     break
+
+        self.guess_history.append((guess, feedback))
 
         return feedback
 
