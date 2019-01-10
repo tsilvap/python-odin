@@ -37,6 +37,14 @@ class Game(object):
         """Draw the current guess code."""
         board = self.board
         guess = board.current_guess
+        window.addstr("          ")
+        for i in range(0, len(guess)):
+            window.addstr("O", curses.color_pair(guess[i]))
+            window.addstr("     ")
+        for i in range(len(guess), 4):
+            window.addstr("O")
+            window.addstr("     ")
+        window.addstr("\n")
     
     def draw_guess_list(self):
         """Draw the list of guesses, previous and to be made."""
@@ -44,6 +52,7 @@ class Game(object):
     
     def draw_help_commands(self):
         """Draw the help command strings on the playing screen."""
+        pass
 
     def draw_text_centralized(self, text, height, width):
         """Draw text in a centralized window (height, width)."""
@@ -114,6 +123,7 @@ class Game(object):
             int((max_x - width - 1)/2),  # ignore \n in calculation
         )
 
+        text_window.clear()
         self.draw_select_color(text_window)
         self.draw_current_guess(text_window)
         self.draw_guess_list()
@@ -153,18 +163,35 @@ class Game(object):
     def playing_screen_keyloop(self):
         """The playing screen keyloop"""
         scr = self.scr
+        board = self.board
+        key_colors = {
+            'a': RED,
+            's': GREEN,
+            'd': YELLOW,
+            'f': BLUE,
+            'g': MAGENTA,
+            'h': CYAN
+        }
+
         valid_keys = {'a', 's', 'd', 'f', 'g', 'h', '?', 'n', 'r', 'q'}
-
-        key = scr.getkey().lower()
-        while key not in valid_keys:
+        while True:
             key = scr.getkey().lower()
+            while key not in valid_keys:
+                key = scr.getkey().lower()
 
-        if key == 'a':
-            board.add_color(RED)
-        elif key == 's':
-            board.add_color(GREEN)
-        else:
-            pass # TODO: go on...
+            if key in key_colors:
+                try:
+                    board.add_color(key_colors[key])
+                except ValueError:
+                    continue
+            elif key == '?':
+                pass # TODO: Implement help screen
+            elif key == 'n':
+                pass # TODO: Implement new game screen
+            elif key == 'r':
+                pass # TODO: Implement reset guess procedure
+            elif key == 'q':
+                break
 
     def start(self):
         """Start the game and execute its lifecycle."""
