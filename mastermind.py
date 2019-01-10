@@ -33,9 +33,10 @@ class Game(object):
         curses.init_pair(MAGENTA, MAGENTA, 0)
         curses.init_pair(CYAN, CYAN, 0)
 
-    def draw_current_guess(self):
+    def draw_current_guess(self, window):
         """Draw the current guess code."""
-        pass
+        board = self.board
+        guess = board.current_guess
     
     def draw_guess_list(self):
         """Draw the list of guesses, previous and to be made."""
@@ -104,7 +105,7 @@ class Game(object):
         scr.addstr(0, 0, "mastermind.py", curses.A_REVERSE)
         scr.refresh()
 
-        height, width = 18, 40
+        height, width = 20, 40
         max_y, max_x = scr.getmaxyx()
         text_window = curses.newwin(
             height,
@@ -114,7 +115,7 @@ class Game(object):
         )
 
         self.draw_select_color(text_window)
-        self.draw_current_guess()
+        self.draw_current_guess(text_window)
         self.draw_guess_list()
         self.draw_help_commands()
 
@@ -152,8 +153,18 @@ class Game(object):
     def playing_screen_keyloop(self):
         """The playing screen keyloop"""
         scr = self.scr
+        valid_keys = {'a', 's', 'd', 'f', 'g', 'h', '?', 'n', 'r', 'q'}
 
-        key = scr.getch()
+        key = scr.getkey().lower()
+        while key not in valid_keys:
+            key = scr.getkey().lower()
+
+        if key == 'a':
+            board.add_color(RED)
+        elif key == 's':
+            board.add_color(GREEN)
+        else:
+            pass # TODO: go on...
 
     def start(self):
         """Start the game and execute its lifecycle."""
@@ -184,6 +195,23 @@ class Board(object):
             self.code = code
 
         self.tries = tries
+        self.current_guess = []
+
+    def add_color(self, color):
+        """Append a color to the current guess."""
+        current_guess = self.current_guess
+
+        if not len(current_guess) < 4:
+            raise ValueError("Can't pick more than 4 colors.")
+        
+        if color not in {RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN}:
+            raise ValueError("Invalid color.")
+
+        for current_guess_color in current_guess:
+            if color == current_guess_color:
+                raise ValueError("Cannot repeat colors in guess.")
+
+        current_guess.append(color)
 
     def guess(self, guess):
         """Guess a combination of colors.
