@@ -78,23 +78,19 @@ def test_add_color():
     board.add_color(RED)
     assert board.current_guess == [RED]
 
-    # Add three more colors
+    # Add three more colors, should create a new guess_history entry and
+    # reset current_guess
     board.add_color(GREEN)
     board.add_color(CYAN)
     board.add_color(YELLOW)
-    assert board.current_guess == [RED, GREEN, CYAN, YELLOW]
+    assert board.guess_history[0][0] == [RED, GREEN, CYAN, YELLOW]
+    assert board.current_guess == []
 
-    # Add one more color, should throw error
-    with pytest.raises(ValueError):
-        board.add_color(BLUE)
-
-    # Adding invalid color should also throw error
-    board.current_guess = []
+    # Adding invalid color should throw error
     with pytest.raises(ValueError):
         board.add_color('invalid')
 
     # Adding repeated colors should throw error
-    board.current_guess = []
     board.add_color(RED)
     with pytest.raises(ValueError):
         board.add_color(RED)

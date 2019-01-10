@@ -36,6 +36,8 @@ class Game(object):
         curses.init_pair(BLUE, BLUE, 0)
         curses.init_pair(MAGENTA, MAGENTA, 0)
         curses.init_pair(CYAN, CYAN, 0)
+        curses.init_pair(7, BLACK, WHITE)
+        curses.init_pair(8, WHITE, BLACK)
 
     def draw_current_guess(self, window):
         """Draw the current guess code."""
@@ -48,7 +50,7 @@ class Game(object):
         for i in range(len(guess), 4):
             window.addstr("O")
             window.addstr("     ")
-        window.addstr("\n")
+        window.addstr("\n\n")
     
     def draw_guess_list(self, window):
         """Draw the list of guesses, previous and to be made."""
@@ -56,7 +58,20 @@ class Game(object):
         guess_list = board.guess_history
 
         for i in range(0, len(guess_list)):
-            pass  # TODO: Implement guess list
+            window.addstr("{:>2}.  ".format(i + 1))
+
+            guess = guess_list[i][0]
+            for j in range(0, 4):
+                window.addstr("O    ", curses.color_pair(guess[j]))
+            window.addstr("      ")
+
+            feedback = guess_list[i][1]
+            for j in range(0, len(feedback)):
+                window.addstr(" ")
+                window.addstr("o", curses.color_pair(feedback[j]))
+
+            window.addstr("\n")
+
         for i in range(len(guess_list), 10):
             window.addstr("\n")
 
@@ -258,6 +273,10 @@ class Board(object):
                 raise ValueError("Cannot repeat colors in guess.")
 
         current_guess.append(color)
+
+        if len(current_guess) == 4:
+            self.guess(current_guess)
+            self.current_guess = []
 
     def guess(self, guess):
         """Guess a combination of colors.
