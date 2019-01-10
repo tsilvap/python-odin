@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Command-line Mastermind game, with AI."""
 import curses
+import logging
 import random
 
 
@@ -14,6 +15,9 @@ BLUE = 4
 MAGENTA = 5
 CYAN = 6
 WHITE = 7
+
+# Set up logging
+logging.basicConfig(filename='mastermind.log', filemode='w', level=logging.DEBUG)
 
 
 class Game(object):
@@ -182,6 +186,7 @@ class Game(object):
             if key in key_colors:
                 try:
                     board.add_color(key_colors[key])
+                    self.draw_playing_screen()
                 except ValueError:
                     continue
             elif key == '?':
@@ -192,6 +197,8 @@ class Game(object):
                 pass # TODO: Implement reset guess procedure
             elif key == 'q':
                 break
+
+            break  # Exit the loop
 
     def start(self):
         """Start the game and execute its lifecycle."""
